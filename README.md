@@ -1,87 +1,81 @@
 # Sentiment Analyzer
 
-An Agentic AI full-stack application for customer-service conversation analysis. Upload a UTF-8 `.txt` transcript, execute an orchestrated **LangGraph** workflow with a pretrained Hugging Face RoBERTa model, calculate deterministic KPIs, extract friction insights, persist results to **PostgreSQL**, and review live insights and historical analyses in a modern **React** dashboard.
+A modern full-stack AI application for analyzing customer-service conversation transcripts. Upload a `.txt` transcript to classify sentence-by-sentence sentiment, compute conversation-level analytics, extract actionable call insights, and explore saved analysis history.
+
+---
 
 ## Features
 
-- **Agentic Workflow**: Multi-node orchestration powered by LangGraph with conditional insight routing based on conversation friction.
-- **Durable PostgreSQL Persistence**: Complete storage of transcripts, sentence classifications, numeric KPIs, and AI insights.
-- **Hugging Face Sentiment AI**: Sentence-level sentiment classification using `cardiffnlp/twitter-roberta-base-sentiment-latest` with confidence thresholding.
-- **Deterministic Analytics**: Mathematically verified KPI calculations (positive, negative, neutral counts, percentages, and average confidence).
-- **Interactive History**: View and load past analyses directly from PostgreSQL in the React dashboard.
-- **One-Command Startup**: Root `npm run dev` concurrently launches both backend and frontend.
+- **Sentence-Level Sentiment Analysis**: Automatically classifies every sentence in a conversation as Positive, Negative, or Neutral with confidence scores using a preloaded transformer model.
+- **Visual Analytics Dashboard**: Interactive donut chart, dominant sentiment badge, and positive/negative ratio breakdowns.
+- **Actionable Call Insights**: Automatically detects overall conversation tone, flags customer friction points, and evaluates churn and escalation risk.
+- **Persistent Conversation History**: Stores all past transcripts and analyses so you can revisit and review previous calls at any time without re-uploading.
+- **One-Command Local Startup**: Launch both the backend API and frontend dashboard concurrently with a single command.
+
+---
 
 ## Architecture
 
 ```text
 React Frontend (Vite, Port 5173)
         │
-        ▼  multipart/form-data POST /analyze
+        ▼  POST /analyze (multipart .txt)
 FastAPI Backend (Port 8000)
         │
         ▼
-LangGraph Orchestrator
-┌─────────────────────────────────────────────────────────────┐
-│ 1. transcript_node       -> Split transcript into sentences │
-│ 2. sentiment_node        -> Batch RoBERTa inference         │
-│ 3. kpi_node              -> Deterministic KPI derivation    │
-│ 4. Conditional Insight Router                               │
-│    ├── High Friction     -> negative_insight_node           │
-│    └── Standard Flow     -> standard_insight_node           │
-│ 5. validation_node       -> Integrity & math verification   │
-│ 6. persistence_node      -> Commit records to PostgreSQL    │
-└─────────────────────────────────────────────────────────────┘
+Orchestration Pipeline
+ ├── 1. Transcript Processing  (Sentence extraction & normalization)
+ ├── 2. Sentiment Analysis     (Transformer sentence classification)
+ ├── 3. Metrics Derivation     (Deterministic ratios & counts)
+ ├── 4. Call Insights Engine   (Tone detection & friction extraction)
+ ├── 5. Integrity Verification (Data consistency check)
+ └── 6. Data Persistence       (Saves conversation, sentences, and metrics)
         │
         ▼
-PostgreSQL 16 Database (Port 5433)
+PostgreSQL Database (Port 5433)
         │
         ▼
-FastAPI JSON Response -> React Dashboard
+FastAPI JSON Response ──► React Dashboard
 ```
 
-## PostgreSQL Persistence
-
-PostgreSQL is the permanent source of truth:
-- **`conversations`**: Stores conversation UUID, filename, uploaded timestamp, overall sentiment, summary, and structured insights JSON.
-- **`sentence_analysis`**: Stores sentence text, sentiment label, confidence score, and sentence order with cascade deletion.
-- **`conversation_kpis`**: Stores total sentence count, counts per sentiment, percentages, average confidence, and dominant sentiment.
+---
 
 ## Project Structure
 
 ```text
 Sentiment_Analyzer/
 ├── backend/
-│   ├── database.py             # SQLAlchemy models and connection handling
-│   ├── graph.py                # LangGraph StateGraph, nodes, and routing
-│   ├── main.py                 # FastAPI service and endpoints
+│   ├── database.py             # Database models and connection pooling
+│   ├── graph.py                # Analysis pipeline and routing workflow
+│   ├── main.py                 # FastAPI service and API routes
 │   └── requirements.txt        # Python backend dependencies
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx             # React dashboard and history view
-│   │   └── styles.css          # Design system and styling
-│   └── package.json            # Frontend Vite dependencies
-├── docker-compose.yml          # PostgreSQL 16 Alpine configuration
-├── .env                        # Active environment configuration
-├── .env.example                # Example environment template
-├── package.json                # Unified process launcher (concurrently)
-├── sample_conversation.txt     # Sample transcript
-├── PROJECT_CONTEXT.md          # Technical documentation
-└── AGENTS.md                   # AI agent operating instructions
+│   │   ├── App.jsx             # React dashboard and history components
+│   │   ├── main.jsx            # Application entry point
+│   │   └── styles.css          # Design system, layout, and styling
+│   ├── package.json            # Frontend dependencies
+│   └── vercel.json             # Vercel deployment configuration
+├── docker-compose.yml          # Local database container configuration
+├── package.json                # Unified launcher configuration
+├── sample_conversation.txt     # Ready-to-use sample transcript
+├── PROJECT_CONTEXT.md          # Comprehensive technical documentation
+└── AGENTS.md                   # AI pair-programming instructions
 ```
 
-## Quick Start
+---
 
-### 1. Database Setup
+## Quick Start (Local Setup)
 
-Start PostgreSQL via Docker Compose:
+### 1. Start the Database
 
 ```bash
 docker compose up -d
 ```
 
-### 2. Install & Start Application
+### 2. Start the Application
 
-From the project root:
+From the project root directory:
 
 ```bash
 npm install
@@ -89,25 +83,25 @@ npm run dev
 ```
 
 This concurrently starts:
-- **FastAPI Backend**: `http://localhost:8000`
-- **React Frontend**: `http://localhost:5173`
-- **Interactive API Docs**: `http://localhost:8000/docs`
+* **Frontend Web App**: `http://localhost:5173`
+* **Backend API**: `http://localhost:8000`
+* **API Documentation**: `http://localhost:8000/docs`
 
 ### Demo Login
-- **Username**: `admin`
-- **Password**: `admin123`
+* **Username**: `admin`
+* **Password**: `admin123`
 
 ### Stopping the Application
-Press `Ctrl+C` in the terminal to stop both the backend and frontend child processes together.
+Press `Ctrl+C` in your terminal to stop both servers together.
 
-To stop the database container:
+To stop the database:
 ```bash
 docker compose down
 ```
 
 ---
 
-## Manual Startup (Fallback)
+## Manual Startup (Alternative)
 
 If you prefer running services in separate terminals:
 
@@ -129,25 +123,30 @@ npm run dev
 
 ---
 
-## Environment Variables
+## Deployment Guide
 
-Configured in `.env`:
+### Deploying the Frontend (Vercel)
+1. Import this repository into [Vercel](https://vercel.com).
+2. The included `vercel.json` automatically configures the build:
+   * **Build Command**: `npm --prefix frontend run build`
+   * **Output Directory**: `frontend/dist`
+3. Under **Environment Variables**, add:
+   * `VITE_API_URL`: The public HTTPS URL of your deployed backend API.
+4. Click **Deploy**.
 
-```env
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=sentiment_db
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5433
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/sentiment_db
-```
+### Deploying the Backend & Database (e.g., Render / Railway)
+1. Create a PostgreSQL database instance and copy its connection URL.
+2. Deploy the `backend/` as a Python web service:
+   * **Build Command**: `pip install -r backend/requirements.txt`
+   * **Start Command**: `uvicorn main:app --app-dir backend --host 0.0.0.0 --port $PORT`
+   * **Environment Variable**: `DATABASE_URL` set to your database connection string.
 
 ---
 
-## API Endpoints
+## API Reference
 
 ### `GET /health`
-Returns system health, transformer model status, and PostgreSQL connectivity:
+Returns service readiness:
 ```json
 {
   "status": "ok",
@@ -158,34 +157,20 @@ Returns system health, transformer model status, and PostgreSQL connectivity:
 ```
 
 ### `POST /analyze`
-Uploads a `.txt` customer conversation, executes the LangGraph agentic workflow, persists results to PostgreSQL, and returns the analysis.
-
+Uploads a `.txt` customer conversation transcript and returns the full analysis:
 ```bash
 curl.exe -X POST -F "file=@sample_conversation.txt" http://localhost:8000/analyze
 ```
 
 ### `GET /conversations`
-Retrieves past conversation analyses stored in PostgreSQL.
+Retrieves past conversation analyses, sorted by most recent first.
 
 ### `GET /conversations/{id}`
-Retrieves the complete stored conversation analysis by UUID.
+Retrieves complete stored conversation details matching the `/analyze` format.
 
 ---
 
-## Example Input
-
-[`sample_conversation.txt`](sample_conversation.txt) demonstrates a customer service conversation about a temporary network outage:
-
-```text
-Agent: Hello, thank you for calling BrightTel support. How can I help today?
-Customer: Hi, my internet has been dropping since yesterday evening and it has been really frustrating.
-Agent: I am sorry you have had that experience. I can check the connection for you.
-...
-```
-
----
-
-## Expected Output
+## Sample Output
 
 ```json
 {
@@ -224,18 +209,3 @@ Agent: I am sorry you have had that experience. I can check the connection for y
   ]
 }
 ```
-
----
-
-## Analysis History
-
-The React frontend includes a built-in **History** view. Users can click any past conversation record to reload and review its KPIs, charts, and sentence analysis from PostgreSQL without re-uploading the file.
-
----
-
-## Limitations
-
-- **Authentication**: Frontend demo gate; no server-side JWT or cookie session issuance.
-- **Single-request Batch Processing**: Transcripts are processed synchronously during the request.
-- **Model Confidence**: Confidence thresholding maps polar predictions below 0.72 to Neutral.
-# Sentiment-Analyzer-Full-Stack-AI 

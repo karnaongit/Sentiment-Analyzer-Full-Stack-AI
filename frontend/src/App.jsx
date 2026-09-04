@@ -68,7 +68,7 @@ function UploadPanel({ onResults, onOpenHistory }) {
       const { data } = await axios.post(`${API_URL}/analyze`, body)
       onResults(data)
     } catch (err) {
-      setError(err.response?.data?.detail || 'Could not reach the API. Make sure the backend is running.')
+      setError(err.response?.data?.detail || 'Could not reach the API. Make sure the backend server is running.')
     } finally {
       setLoading(false)
     }
@@ -79,7 +79,7 @@ function UploadPanel({ onResults, onOpenHistory }) {
       <span className="eyebrow">NEW ANALYSIS</span>
       <h2>Upload a conversation</h2>
       <p>
-        Upload a UTF-8 <code>.txt</code> customer conversation to run the LangGraph agentic pipeline and store results in PostgreSQL.
+        Upload a UTF-8 <code>.txt</code> customer conversation to analyze sentiment, key metrics, and call highlights.
       </p>
       <label className="drop-zone">
         <input
@@ -96,11 +96,11 @@ function UploadPanel({ onResults, onOpenHistory }) {
       </label>
       {error && <p className="form-error">{error}</p>}
       <button onClick={analyze} disabled={loading}>
-        {loading ? 'Running LangGraph Agent…' : 'Analyze sentiment'}
+        {loading ? 'Analyzing conversation…' : 'Analyze sentiment'}
       </button>
       <div className="upload-footer">
         <button className="text-link" onClick={onOpenHistory}>
-          View previous analyses stored in database →
+          View previous conversation history →
         </button>
       </div>
     </section>
@@ -119,7 +119,7 @@ function HistoryView({ onSelect, onNew }) {
         const { data } = await axios.get(`${API_URL}/conversations`)
         setHistory(data)
       } catch (err) {
-        setError('Could not load analysis history from PostgreSQL.')
+        setError('Could not connect to the analysis service. Please check your backend connection.')
       } finally {
         setLoading(false)
       }
@@ -131,7 +131,7 @@ function HistoryView({ onSelect, onNew }) {
     <main className="dashboard">
       <header>
         <div>
-          <span className="eyebrow">POSTGRESQL STORAGE</span>
+          <span className="eyebrow">SAVED CONVERSATIONS</span>
           <h1>Analysis History</h1>
         </div>
         <button className="primary" onClick={onNew}>
@@ -139,12 +139,12 @@ function HistoryView({ onSelect, onNew }) {
         </button>
       </header>
 
-      {loading && <p className="status-message">Loading history from PostgreSQL…</p>}
+      {loading && <p className="status-message">Loading conversation history…</p>}
       {error && <p className="form-error">{error}</p>}
 
       {!loading && history.length === 0 && (
         <article className="panel empty-state">
-          <p>No stored conversations found in PostgreSQL yet.</p>
+          <p>No past conversations found yet.</p>
           <button onClick={onNew}>Analyze your first conversation</button>
         </article>
       )}
@@ -214,7 +214,7 @@ function Dashboard({ analysis, onNew, onOpenHistory }) {
     <main className="dashboard">
       <header>
         <div>
-          <span className="eyebrow">LANGGRAPH AGENT COMPLETE</span>
+          <span className="eyebrow">ANALYSIS COMPLETE</span>
           <h1>Conversation insights</h1>
           {filename && <small className="file-tag">File: {filename}</small>}
         </div>
@@ -311,8 +311,8 @@ function Dashboard({ analysis, onNew, onOpenHistory }) {
 
       {insights && (
         <section className="panel agentic-insights">
-          <span className="eyebrow">LANGGRAPH AGENT INSIGHTS</span>
-          <h2>{insights.analysis_type || 'Agent Analysis'}</h2>
+          <span className="eyebrow">ACTIONABLE INSIGHTS</span>
+          <h2>{insights.analysis_type || 'Call Analysis'}</h2>
           <p className="insight-tone">
             <strong>Overall tone:</strong> {insights.overall_tone}
           </p>
@@ -384,7 +384,7 @@ export default function App() {
       setAnalysis(data)
       setView('dashboard')
     } catch (err) {
-      alert('Failed to load conversation details from PostgreSQL.')
+      alert('Unable to reach the analysis API. Please ensure the backend is connected.')
     } finally {
       setLoadingItem(false)
     }
@@ -419,7 +419,7 @@ export default function App() {
         <span className="nav-user">admin</span>
       </nav>
 
-      {loadingItem && <p className="global-loader">Loading conversation from database…</p>}
+      {loadingItem && <p className="global-loader">Loading conversation…</p>}
 
       {!loadingItem && view === 'upload' && (
         <UploadPanel
