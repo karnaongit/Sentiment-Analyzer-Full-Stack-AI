@@ -1,3 +1,6 @@
+# Vercel Link: 
+https://sentiment-analyzer-full-stack-ai-on.vercel.app/
+
 # Sentiment Analyzer
 
 A modern full-stack AI application for analyzing customer-service conversation transcripts. Upload a `.txt` transcript to classify sentence-by-sentence sentiment, compute conversation-level analytics, extract actionable call insights, and explore saved analysis history.
