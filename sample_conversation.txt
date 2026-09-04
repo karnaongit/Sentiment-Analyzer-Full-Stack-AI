@@ -1,0 +1,10 @@
+Agent: Hello, thank you for calling BrightTel support. How can I help today?
+Customer: Hi, my internet has been dropping since yesterday evening and it has been really frustrating.
+Agent: I am sorry you have had that experience. I can check the connection for you.
+Customer: Thank you, I appreciate that. My account number is 18290.
+Agent: I can see an outage affecting your area, and the repair team expects to restore service by 6 PM.
+Customer: That is useful to know. I was worried that my router was broken.
+Agent: Your router is reporting normally, so you should not need to replace it.
+Customer: Great, that is a relief. Please send me a text when it is fixed.
+Agent: Absolutely. I have added the notification and credited one day of service to your account.
+Customer: Excellent service, thank you for sorting this out.

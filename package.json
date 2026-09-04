@@ -1,0 +1,16 @@
+{
+  "name": "sentiment-analyzer",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Full-stack customer conversation sentiment analyzer with LangGraph, PostgreSQL, and React",
+  "scripts": {
+    "dev": "concurrently -k --names \"BACKEND,FRONTEND\" -c \"blue.bold,cyan.bold\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "backend\\.venv\\Scripts\\python.exe -m uvicorn main:app --app-dir backend --reload --port 8000",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
